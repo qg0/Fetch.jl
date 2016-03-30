@@ -1,9 +1,10 @@
+const QUANDL_URL = "https://www.quandl.com/api/v3/datasets"
 # Helper function for converting a string to Unix time (float)
+
 function dateconv(s::AbstractString)
     Dates.datetime2unix(Dates.DateTime(s))
 end
 
-const QUANDLROOT = "https://www.quandl.com/api/v3/datasets"
 @doc doc"""
 quandl(code::AbstractString;
        from::AbstractString="",
@@ -37,35 +38,34 @@ function quandl(code::AbstractString;
     if rows == 0
         fromstr = from == "" ? "" : "&start_date=$from"
         thrustr = thru == "" ? "" : "&end_date=$thru"
-        url = "$QUANDLROOT/$code.csv?$(fromstr)$(thrustr)&order=$sort&collapse=$freq&transform=$calc&api_key=$auth"
+        url = "$QUANDL_URL/$code.csv?$(fromstr)$(thrustr)&order=$sort&collapse=$freq&transform=$calc&api_key=$auth"
     else
-        url = "$QUANDLROOT/$code.csv?&rows=$rows&order=$sort&collapse=$freq&transform=$calc&api_key=$auth"
+        url = "$QUANDL_URL/$code.csv?&rows=$rows&order=$sort&collapse=$freq&transform=$calc&api_key=$auth"
     end
-    # Send request =============================================================
-    resp = get(url)
-    @assert resp.status == 200 "Error downloading data from Quandl."
-    # Parse response to numerical data =========================================
-    rowdata = Array{ASCIIString}(split(readall(resp), '\n'))
-    header = Array{ASCIIString}(split(shift!(rowdata), ','))
-    pop!(rowdata)
-    if sort == ""
-        reverse!(rowdata)
-    end
-    N = length(rowdata)
-    k = length(header)
-    data = zeros(Float64, (N,k))
-    data[:,1] = map(s->dateconv(split(s,',')[1]), rowdata)
-    v = map(s->Array{ASCIIString}(split(s,',')[2:end]), rowdata)
-    @inbounds for i = 1:N
-        j = (v[i] .== "")
-        v[i][find(j)] = "NaN"
-        data[i,2:end] = float(v[i])
-    end
-    return (data, header)
+    return csvresp(get(url))
 end
 
 @doc doc"""
+quandl_meta(database::AbstractString, dataset::AbstractString)
+
+Quandl dataset metadata downloaded into a Julia Dict
 """ ->
 function quandl_meta(database::AbstractString, dataset::AbstractString)
+    resp = get("$QUANDL_URL/$database/$dataset/metadata.json")
+    @assert resp.status == 200 "Error downloading metadata from Quandl."
+    return parse(readall(resp))["dataset"]
+end
 
+@doc doc"""
+quandl_search(;db::AbstractString="", qry::AbstractString="", perpage::Int=1, pagenum::Int=1)
+
+Search Quandl for data in a given database, `db`, or matching a given query, `qry`.
+""" ->
+function quandl_search(;db::AbstractString="", qry::AbstractString="", perpage::Int=1, pagenum::Int=1)
+    @assert db!="" || qry!="" "Must enter a database or a search query."
+    dbstr = db   == "" ? "" : "database_code=$db&"
+    qrystr = qry  == "" ? "" : "query=$(replace(qry, ' ', '+'))&"
+    resp = get("$QUANDL_URL.json?$(dbstr)$(qrystr)per_page=$perpage&page=$pagenum")
+    @assert resp.status == 200 "Error retrieving search results from Quandl"
+    return parse(readall(resp))
 end
