@@ -1,5 +1,11 @@
+VERSION >= v"0.4.0" && __precompile__(true)
+
 module Fetch
 
-# package code goes here
+export
+    quandl_auth, quandl
 
-end # module
+include("auth.jl")
+include("quandl.jl")
+
+end
