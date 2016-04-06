@@ -1,6 +1,6 @@
 # Methods for managing credentials, subscriptions, and other authorization-based work
 
-const AUTHDIR = "$(Pkg.dir("Fetch"))/resources/auth"  # location where credentials are to be stored
+const AUTHDIR = "$(Pkg.dir("Fetch"))/auth"  # location where credentials are to be stored
 
 function checkdir()
 	if !isdir(AUTHDIR)
