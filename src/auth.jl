@@ -2,6 +2,13 @@
 
 const AUTHDIR = "$(Pkg.dir("Fetch"))/resources/auth"  # location where credentials are to be stored
 
+function checkdir()
+	if !isdir(AUTHDIR)
+		mkdir(AUTHDIR)
+	end
+	return true
+end
+
 @doc doc"""
 Store Quandl API key for future use or read API key from stored file.
 
@@ -11,6 +18,7 @@ If `token` is an empty string, returns stored key if it exists, otherwise return
 If `token` is non-empty, will store it as a text file for future use in the Quandl package directory and returns itself.
 """ ->
 function quandl_auth{T<:AbstractString}(key::T="")
+	checkdir()
     authfile = "$AUTHDIR/quandl-auth"
     if key == ""
         if isfile(authfile)
