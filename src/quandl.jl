@@ -1,9 +1,4 @@
 const QUANDL_URL = "https://www.quandl.com/api/v3/datasets"
-# Helper function for converting a string to Unix time (float)
-
-function dateconv(s::AbstractString)
-    Dates.datetime2unix(Dates.DateTime(s))
-end
 
 @doc doc"""
 quandl(code::AbstractString;
@@ -42,7 +37,8 @@ function quandl(code::AbstractString;
     else
         url = "$QUANDL_URL/$code.csv?&rows=$rows&order=$sort&collapse=$freq&transform=$calc&api_key=$auth"
     end
-    return csvresp(get(url))
+    indata = csvresp(get(url), sort=sort)
+    return ts(indata[1], indata[2], indata[3][2:end])
 end
 
 @doc doc"""

@@ -1,10 +1,8 @@
 VERSION >= v"0.4.0" && __precompile__(true)
 
-using Base.Dates
-
 module Fetch
 
-using Base.Dates, Requests
+using Base.Dates, Requests, Temporal
 
 export
     quandl_auth, quandl, quandl_meta, quandl_search,

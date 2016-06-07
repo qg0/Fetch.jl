@@ -17,6 +17,7 @@ function yahoo(symb::AbstractString;
     d = m<10 ? string("0",m) : string(m)
     e = thru[9:10]
     f = thru[1:4]
-    return csvresp(get("$YAHOO_URL?s=$symb&a=$a&b=$b&c=$c&d=$d&e=$e&f=$f&g=$freq&ignore=.csv"))
+    indata = csvresp(get("$YAHOO_URL?s=$symb&a=$a&b=$b&c=$c&d=$d&e=$e&f=$f&g=$freq&ignore=.csv"))
+    return ts(indata[1], indata[2], indata[3][2:end])
 end
 
