@@ -21,3 +21,36 @@ function yahoo(symb::AbstractString;
     return ts(indata[1], indata[2], indata[3][2:end])
 end
 
+function yahoo(syms::Vector{AbstractString};
+               from::AbstractString="1900-01-01",
+               thru::AbstractString=string(Dates.today()),
+               freq::Char='d')
+    out = Dict()
+    for s = syms
+        out[s] = yahoo(s, from=from, thru=thru, freq=freq)
+    end
+    return out
+end
+
+function yahoo(syms::Vector{ASCIIString};
+               from::AbstractString="1900-01-01",
+               thru::AbstractString=string(Dates.today()),
+               freq::Char='d')
+    out = Dict()
+    for s = syms
+        out[s] = yahoo(s, from=from, thru=thru, freq=freq)
+    end
+    return out
+end
+
+function yahoo(syms::Vector{ByteString};
+               from::AbstractString="1900-01-01",
+               thru::AbstractString=string(Dates.today()),
+               freq::Char='d')
+    out = Dict()
+    for s = syms
+        out[s] = yahoo(s, from=from, thru=thru, freq=freq)
+    end
+    return out
+end
+
